@@ -1,13 +1,148 @@
-import{initializeApp}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";import{getAuth,onAuthStateChanged,RecaptchaVerifier,signInWithPhoneNumber,signOut}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";import{getFirestore,collection,getDocs}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";import{FIREBASE_CONFIG}from"./firebase-config.js";
-const $=id=>document.getElementById(id),app=initializeApp(FIREBASE_CONFIG),auth=getAuth(app),db=getFirestore(app);let confirmation=null,captcha=null,currentCourse=null;
-const courses=[["computer-fundamentals","Computer Fundamentals","Computer"],["ms-word","MS Word","Office"],["ms-excel","MS Excel","Office"],["ms-powerpoint","MS PowerPoint","Office"],["computer-application","Computer Application","Computer"],["html","HTML","Web Development"],["css","CSS","Web Development"],["javascript","JavaScript","Programming"],["python","Python","Programming"],["java","Java","Programming"],["c","C","Programming"],["cpp","C++","Programming"],["networks","Networks","Networking"],["cybersecurity","Cybersecurity","Security"]];
-const courseMap=Object.fromEntries(courses.map((x,i)=>[x[0],{name:x[1],category:x[2],order:i}]));
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,RecaptchaVerifier,signInWithPhoneNumber,signOut}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import{getFirestore,collection,getDocs}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import{FIREBASE_CONFIG}from"./firebase-config.js";
+
+const $=id=>document.getElementById(id);
+const app=initializeApp(FIREBASE_CONFIG),auth=getAuth(app),db=getFirestore(app);
+let confirmation=null,captcha=null,currentCourse=null;
+
+const courses=[
+["computer-fundamentals","Computer Fundamentals","Computer","💻"],
+["ms-word","MS Word","Office","W"],
+["ms-excel","MS Excel","Office","X"],
+["ms-powerpoint","MS PowerPoint","Office","P"],
+["computer-application","Computer Application","Computer","🖥"],
+["html","HTML","Web Development","<>"],
+["css","CSS","Web Development","#"],
+["javascript","JavaScript","Programming","JS"],
+["python","Python","Programming","Py"],
+["java","Java","Programming","☕"],
+["c","C","Programming","C"],
+["cpp","C++","Programming","C++"],
+["networks","Networks","Networking","🌐"],
+["cybersecurity","Cybersecurity","Security","🔒"]
+];
+const courseMap=Object.fromEntries(courses.map((x,i)=>[x[0],{name:x[1],category:x[2],order:i,icon:x[3]}]));
+
 function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");window.scrollTo({top:0,behavior:"instant"})}
 function esc(v){return String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
 function initials(n){return n.replace(/[^a-zA-Z0-9+]/g,"").slice(0,2).toUpperCase()||"LM"}
-$("sendOtp").onclick=async()=>{const p=$("phone").value.trim();if(!/^\+\d{8,15}$/.test(p))return $("authStatus").textContent="Use +91XXXXXXXXXX format.";try{if(!captcha)captcha=new RecaptchaVerifier(auth,"recaptcha-container",{size:"invisible"});confirmation=await signInWithPhoneNumber(auth,p,captcha);$("otpArea").classList.remove("hidden");$("authStatus").textContent="OTP sent. Enter the 6 digit code."}catch(e){$("authStatus").textContent=e.message;try{captcha?.clear();captcha=null}catch(_){}}};
-$("verifyOtp").onclick=async()=>{const code=$("otp").value.trim();if(!confirmation)return $("authStatus").textContent="Request OTP first.";if(!/^\d{6}$/.test(code))return $("authStatus").textContent="Enter the 6 digit OTP.";try{await confirmation.confirm(code)}catch(e){$("authStatus").textContent=e.message}};
-$("logout").onclick=()=>signOut(auth);$("backHome").onclick=()=>show("home");$("backCourse").onclick=()=>{if(currentCourse)openCourse(currentCourse.id,currentCourse);else show("home")};onAuthStateChanged(auth,u=>{if(u){show("home");loadCourses()}else show("login")});
-async function loadCourses(){const box=$("courses");box.innerHTML="<div class='card empty'>Loading courses...</div>";try{const snap=await getDocs(collection(db,"courses"));let rows=snap.empty?courses.map((x,i)=>({id:x[0],name:x[1],category:x[2],order:i})):snap.docs.map(d=>{const id=d.id,base=courseMap[id]||{},data=d.data();return{id,name:data.name||base.name||id,category:data.category||base.category||"Course",order:data.order??base.order??999}});rows.sort((a,b)=>(a.order??999)-(b.order??999));box.innerHTML="";rows.forEach(c=>{const b=document.createElement("button");b.className="course-card";b.innerHTML=`<span class="badge">${esc(initials(c.name))}</span><span><h3>${esc(c.name)}</h3><p>${esc(c.category)}</p></span>`;b.onclick=()=>openCourse(c.id,c);box.appendChild(b)})}catch(e){console.error(e);box.innerHTML="<div class='card empty'>Could not load courses. Check Firebase connection and Firestore rules.</div>"}}
-async function openCourse(id,c){currentCourse=c;show("course");$("courseHeader").innerHTML=`<small>${esc(c.category)}</small><h2>${esc(c.name)}</h2>`;const box=$("courseContent");box.innerHTML="<div class='card empty'>Loading course...</div>";try{const semSnap=await getDocs(collection(db,"courses",id,"semesters"));if(semSnap.empty){box.innerHTML=`<div class='card empty'>No semesters added yet.<br><br>Add data under <b>courses/${esc(id)}/semesters</b> in Firestore.</div>`;return}box.innerHTML="<div class='section-title'>Course Content</div>";for(const sem of semSnap.docs){const sd=sem.data(),wrap=document.createElement("div");wrap.className="semester";wrap.innerHTML=`<div class="semester-head"><h3>${esc(sd.name||sem.id)}</h3><span>Semester</span></div>`;const chSnap=await getDocs(collection(db,"courses",id,"semesters",sem.id,"chapters"));if(chSnap.empty)wrap.innerHTML+=`<div class="empty">No chapters added yet.</div>`;else for(const ch of chSnap.docs){const cd=ch.data(),chapter=document.createElement("div");chapter.className="chapter";chapter.innerHTML=`<h4>📘 ${esc(cd.name||ch.id)}</h4>`;const lessonSnap=await getDocs(collection(db,"courses",id,"semesters",sem.id,"chapters",ch.id,"lessons"));if(lessonSnap.empty)chapter.innerHTML+=`<p>No lessons added yet.</p>`;else for(const lesson of lessonSnap.docs){const ld=lesson.data(),row=document.createElement("div");row.className="lesson-row";row.innerHTML=`<div><div class="lesson-title">${esc(ld.name||lesson.id)}</div><div class="lesson-meta">${esc(ld.type||"Lesson")}</div></div>`;const btn=document.createElement("button");btn.textContent="Open";btn.onclick=()=>openLesson({id:lesson.id,...ld,name:ld.name||lesson.id});row.appendChild(btn);chapter.appendChild(row)}wrap.appendChild(chapter)}box.appendChild(wrap)}}catch(e){console.error(e);box.innerHTML="<div class='card empty'>Could not load course structure. Check Firestore rules.</div>"}}
-function openLesson(lesson){show("lesson");const box=$("lessonContent"),pdf=lesson.pdfUrl||lesson.pdf||"",video=lesson.videoUrl||lesson.video||"";box.innerHTML=`<div class="card lesson-card"><small class="muted">${esc(lesson.type||"Lesson")}</small><h2>${esc(lesson.name||"Lesson")}</h2><p class="muted">${esc(lesson.description||"Study this lesson and use the resources below.")}</p></div>`;if(video){const c=document.createElement("div");c.className="card";c.innerHTML=`<h3>🎥 Video Lesson</h3><a class="resource" href="${esc(video)}" target="_blank" rel="noopener"><strong>Open Video</strong><span>Watch lesson video</span></a>`;box.appendChild(c)}if(pdf){const c=document.createElement("div");c.className="card";c.innerHTML=`<h3>📄 PDF / Notes</h3><a class="resource" href="${esc(pdf)}" target="_blank" rel="noopener"><strong>Open Study Material</strong><span>PDF or notes</span></a>`;box.appendChild(c)}if(!video&&!pdf)box.innerHTML+=`<div class="card empty">No video or PDF has been attached to this lesson yet.</div>`}
+
+$("sendOtp").onclick=async()=>{
+ const p=$("phone").value.trim();
+ if(!/^\+\d{8,15}$/.test(p))return $("authStatus").textContent="Use +91XXXXXXXXXX format.";
+ try{
+  if(!captcha)captcha=new RecaptchaVerifier(auth,"recaptcha-container",{size:"invisible"});
+  confirmation=await signInWithPhoneNumber(auth,p,captcha);
+  $("otpArea").classList.remove("hidden");
+  $("authStatus").textContent="OTP sent. Enter the 6 digit code.";
+ }catch(e){$("authStatus").textContent=e.message;try{captcha?.clear();captcha=null}catch(_){}}
+};
+
+$("verifyOtp").onclick=async()=>{
+ const code=$("otp").value.trim();
+ if(!confirmation)return $("authStatus").textContent="Request OTP first.";
+ if(!/^\d{6}$/.test(code))return $("authStatus").textContent="Enter the 6 digit OTP.";
+ try{await confirmation.confirm(code)}catch(e){$("authStatus").textContent=e.message}
+};
+
+$("logout").onclick=()=>signOut(auth);
+$("backHome").onclick=()=>show("home");
+$("backCourse").onclick=()=>{if(currentCourse)openCourse(currentCourse.id,currentCourse);else show("home")};
+
+onAuthStateChanged(auth,u=>{if(u){show("home");loadCourses()}else show("login")});
+
+async function loadCourses(){
+ const box=$("courses");
+ box.innerHTML="<div class='card empty'>Loading courses...</div>";
+ try{
+  const snap=await getDocs(collection(db,"courses"));
+  let rows=snap.empty
+   ?courses.map((x,i)=>({id:x[0],name:x[1],category:x[2],order:i,icon:x[3]}))
+   :snap.docs.map(d=>{
+      const id=d.id,base=courseMap[id]||{},data=d.data();
+      return{id,name:data.name||base.name||id,category:data.category||base.category||"Course",order:data.order??base.order??999,icon:data.icon||base.icon||initials(data.name||id)}
+    });
+  rows.sort((a,b)=>(a.order??999)-(b.order??999));
+  box.innerHTML="";
+  rows.forEach((c,i)=>{
+   const b=document.createElement("button");
+   b.className="course-card";
+   b.dataset.tone=(i%6)+1;
+   b.innerHTML=`<span class="course-number">${String(i+1).padStart(2,"0")}</span>
+   <span class="course-icon">${esc(c.icon||initials(c.name))}</span>
+   <span class="course-main"><h3>${esc(c.name)}</h3><p>${esc(c.category)} · Start learning</p></span>
+   <span class="course-arrow">→</span>`;
+   b.onclick=()=>openCourse(c.id,c);
+   box.appendChild(b);
+  });
+ }catch(e){
+  console.error(e);
+  box.innerHTML="<div class='card empty'>Could not load courses. Check Firebase connection and Firestore rules.</div>";
+ }
+}
+
+async function openCourse(id,c){
+ currentCourse=c;show("course");
+ $("courseHeader").innerHTML=`<div class="hero-row">
+   <div class="hero-icon">${esc(c.icon||initials(c.name))}</div>
+   <div><small>${esc(c.category)}</small><h2>${esc(c.name)}</h2></div>
+ </div>`;
+ const box=$("courseContent");
+ box.innerHTML="<div class='card empty'>Loading course...</div>";
+ try{
+  const semSnap=await getDocs(collection(db,"courses",id,"semesters"));
+  if(semSnap.empty){
+   box.innerHTML=`<div class='card empty'>No semesters added yet.<br><br>Add data under <b>courses/${esc(id)}/semesters</b> in Firestore.</div>`;
+   return;
+  }
+  box.innerHTML="<div class='section-title'>Course Content</div>";
+  for(const sem of semSnap.docs){
+   const sd=sem.data(),wrap=document.createElement("div");
+   wrap.className="semester";
+   wrap.innerHTML=`<div class="semester-head"><h3>${esc(sd.name||sem.id)}</h3><span>SEMESTER</span></div>`;
+   const chSnap=await getDocs(collection(db,"courses",id,"semesters",sem.id,"chapters"));
+   if(chSnap.empty)wrap.innerHTML+=`<div class="empty">No chapters added yet.</div>`;
+   else for(const ch of chSnap.docs){
+    const cd=ch.data(),chapter=document.createElement("div");
+    chapter.className="chapter";
+    chapter.innerHTML=`<h4>📘 ${esc(cd.name||ch.id)}</h4>`;
+    const lessonSnap=await getDocs(collection(db,"courses",id,"semesters",sem.id,"chapters",ch.id,"lessons"));
+    if(lessonSnap.empty)chapter.innerHTML+=`<p>No lessons added yet.</p>`;
+    else for(const lesson of lessonSnap.docs){
+     const ld=lesson.data(),row=document.createElement("div");
+     row.className="lesson-row";
+     row.innerHTML=`<div><div class="lesson-title">${esc(ld.name||lesson.id)}</div><div class="lesson-meta">${esc(ld.type||"Lesson")}</div></div>`;
+     const btn=document.createElement("button");
+     btn.textContent="Open";
+     btn.onclick=()=>openLesson({id:lesson.id,...ld,name:ld.name||lesson.id});
+     row.appendChild(btn);chapter.appendChild(row);
+    }
+    wrap.appendChild(chapter);
+   }
+   box.appendChild(wrap);
+  }
+ }catch(e){
+  console.error(e);
+  box.innerHTML="<div class='card empty'>Could not load course structure. Check Firestore rules.</div>";
+ }
+}
+
+function openLesson(lesson){
+ show("lesson");
+ const box=$("lessonContent"),pdf=lesson.pdfUrl||lesson.pdf||"",video=lesson.videoUrl||lesson.video||"";
+ box.innerHTML=`<div class="card lesson-card"><small class="muted">${esc(lesson.type||"Lesson")}</small>
+ <h2>${esc(lesson.name||"Lesson")}</h2><p class="muted">${esc(lesson.description||"Study this lesson and use the resources below.")}</p></div>`;
+ if(video){
+  const c=document.createElement("div");c.className="card";
+  c.innerHTML=`<h3>🎥 Video Lesson</h3><a class="resource" href="${esc(video)}" target="_blank" rel="noopener"><strong>Open Video</strong><span>Watch lesson video</span></a>`;
+  box.appendChild(c);
+ }
+ if(pdf){
+  const c=document.createElement("div");c.className="card";
+  c.innerHTML=`<h3>📄 PDF / Notes</h3><a class="resource" href="${esc(pdf)}" target="_blank" rel="noopener"><strong>Open Study Material</strong><span>PDF or notes</span></a>`;
+  box.appendChild(c);
+ }
+ if(!video&&!pdf)box.innerHTML+=`<div class="card empty">No video or PDF has been attached to this lesson yet.</div>`;
+}
