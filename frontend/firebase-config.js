@@ -1,0 +1,1 @@
+export const FIREBASE_CONFIG={apiKey:"AIzaSyAEmInnWVtiuwPGrcjjsu3I2qc2IAT1lzg",authDomain:"is-esports.firebaseapp.com",projectId:"is-esports",storageBucket:"is-esports.firebasestorage.app",messagingSenderId:"669572694478",appId:"1:669572694478:web:5e15b166902a9e0d326b9f",measurementId:"G-ZPP10G2XFY"};
