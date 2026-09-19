@@ -1,98 +1,92 @@
-import{initializeApp}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import{getAuth,onAuthStateChanged,signInAnonymously,signOut}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-import{getFirestore,collection,getDocs,doc,setDoc,deleteDoc}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-import{FIREBASE_CONFIG}from"../frontend/firebase-config.js";
+(function(){
+"use strict";
 
-const app=initializeApp(FIREBASE_CONFIG),auth=getAuth(app),db=getFirestore(app),$=id=>document.getElementById(id);
-const courses=[["computer-fundamentals","Computer Fundamentals","💻"],["ms-word","MS Word","W"],["ms-excel","MS Excel","X"],["ms-powerpoint","MS PowerPoint","P"],["computer-application","Computer Application","🖥"],["html","HTML","<>"],["css","CSS","#"],["javascript","JavaScript","JS"],["python","Python","Py"],["java","Java","☕"],["c","C","C"],["cpp","C++","C++"],["networks","Networks","🌐"],["cybersecurity","Cybersecurity","🔒"]];
-const esc=v=>String(v??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
-const msg=(id,t)=>$(id).textContent=t;
-function showPage(page){document.querySelectorAll(".screen.page").forEach(x=>x.classList.remove("active"));$(page).classList.add("active");document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.page===page));window.scrollTo(0,0)}
-document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
-$("goContent").onclick=$("quickContent").onclick=()=>showPage("content");
-
-onAuthStateChanged(auth,u=>{
- if(u){$("login").classList.remove("active");$("dashboard").classList.add("active");document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$("dashboard").classList.add("active");init();}
- else{document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$("login").classList.add("active")}
-});
-const ADMIN_EMAIL="admin@brainbyte.com";
-const ADMIN_PASSWORD="1122@3344";
-
-$("email").value=ADMIN_EMAIL;
-$("password").value=ADMIN_PASSWORD;
-
-$("loginBtn").onclick=async()=>{
-  const email=$("email").value.trim();
-  const password=$("password").value;
-  const btn=$("loginBtn");
-  btn.disabled=true;
-  msg("loginMsg","Checking admin credentials...");
-  if(email!==ADMIN_EMAIL || password!==ADMIN_PASSWORD){
-    msg("loginMsg","Wrong admin ID or password.");
-    btn.disabled=false;
-    return;
-  }
-  try{
-    msg("loginMsg","Signing in...");
-    await signInAnonymously(auth);
-    localStorage.setItem("learnWithMeAdmin","1");
-    msg("loginMsg","Login successful.");
-  }catch(e){
-    console.error(e);
-    if(e.code==="auth/operation-not-allowed"){
-      msg("loginMsg","Anonymous Authentication is OFF. Firebase → Authentication → Sign-in method → Anonymous → Enable.");
-    }else{
-      msg("loginMsg","Login failed: "+(e.message||e.code));
-    }
-  }finally{
-    btn.disabled=false;
-  }
+const FIREBASE_CONFIG={
+ apiKey:"AIzaSyAEmInnWVtiuwPGrcjjsu3I2qc2IAT1lzg",
+ authDomain:"is-esports.firebaseapp.com",
+ projectId:"is-esports",
+ storageBucket:"is-esports.firebasestorage.app",
+ messagingSenderId:"669572694478",
+ appId:"1:669572694478:web:5e15b166902a9e0d326b9f",
+ measurementId:"G-ZPP10G2XFY"
 };
 
+const ADMIN_EMAIL="admin@brainbyte.com";
+const ADMIN_PASSWORD="1122@3344";
+const $=id=>document.getElementById(id);
 
-$("logout").onclick=async()=>{try{await signOut(auth)}catch(e){console.error(e)}};
-$("mobileLogout").onclick=async()=>{try{await signOut(auth)}catch(e){console.error(e)}};
-$("refresh").onclick=()=>loadLessons();
+function setMsg(t){
+  const el=$("loginMsg");
+  if(el) el.textContent=t;
+}
 
-async function init(){renderCourses();$("course").innerHTML=courses.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("");$("lessonCourse").innerHTML=$("course").innerHTML;await loadSemesters("course","semester","chapter");await loadSemesters("lessonCourse","lessonSemester","lessonChapter");await dashboardStats();}
-function renderCourses(){$("courseTiles").innerHTML=courses.map(x=>`<div class="course-tile"><i>${esc(x[2])}</i><div><b>${esc(x[1])}</b><small>Connected course</small></div></div>`).join("")}
+window.addEventListener("error",e=>{
+  setMsg("Page error: "+(e.message||"JavaScript error"));
+});
 
-async function loadSemesters(courseSel,semSel,chSel){
- const id=$(courseSel).value;$(semSel).innerHTML="<option>Loading...</option>";
- try{const s=await getDocs(collection(db,"courses",id,"semesters"));const rows=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order??999)-(b.order??999));
- $(semSel).innerHTML=rows.length?rows.map(x=>`<option value="${esc(x.id)}">${esc(x.name||x.id)}</option>`).join(""):"<option value=''>No semesters</option>";await loadChapters(courseSel,semSel,chSel)}
- catch(e){$(semSel).innerHTML="<option value=''>Could not load</option>"}}
-async function loadChapters(courseSel,semSel,chSel){
- const c=$(courseSel).value,s=$(semSel).value;if(!s)return;$(chSel).innerHTML="<option>Loading...</option>";
- try{const snap=await getDocs(collection(db,"courses",c,"semesters",s,"chapters"));const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order??999)-(b.order??999));
- $(chSel).innerHTML=rows.length?rows.map(x=>`<option value="${esc(x.id)}">${esc(x.name||x.id)}</option>`).join(""):"<option value=''>No chapters</option>";if(chSel==="lessonChapter")await loadLessons()}
- catch(e){$(chSel).innerHTML="<option value=''>Could not load</option>"}}
-$("course").onchange=()=>loadSemesters("course","semester","chapter");
-$("semester").onchange=()=>loadChapters("course","semester","chapter");
-$("lessonCourse").onchange=()=>loadSemesters("lessonCourse","lessonSemester","lessonChapter");
-$("lessonSemester").onchange=()=>loadChapters("lessonCourse","lessonSemester","lessonChapter");
-$("lessonChapter").onchange=loadLessons;
+window.addEventListener("unhandledrejection",e=>{
+  const r=e.reason||{};
+  setMsg("Firebase error: "+(r.message||r.code||"Unknown error"));
+});
 
-async function loadLessons(){
- const c=$("lessonCourse").value,s=$("lessonSemester").value,ch=$("lessonChapter").value;if(!c||!s||!ch)return;
- const box=$("lessonList");box.innerHTML="<div class='empty'>Loading...</div>";
- try{const snap=await getDocs(collection(db,"courses",c,"semesters",s,"chapters",ch,"lessons"));const rows=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order??999)-(b.order??999));
- if(!rows.length){box.innerHTML="<div class='empty'>No lessons published here.</div>";return}
- box.innerHTML=rows.map(x=>`<div class="lesson-item"><div><b>${esc(x.name||x.id)}</b><small>${esc(x.type||"Lesson")} ${x.videoUrl?"· 🎥":""} ${x.pdfUrl?"· 📄":""}</small></div><button class="danger" data-id="${esc(x.id)}">Delete</button></div>`).join("");
- box.querySelectorAll(".danger").forEach(b=>b.onclick=()=>deleteLesson(b.dataset.id))}
- catch(e){box.innerHTML="<div class='empty'>Could not load lessons.</div>"}}
-async function deleteLesson(id){if(!confirm("Delete this lesson?"))return;try{await deleteDoc(doc(db,"courses",$("lessonCourse").value,"semesters",$("lessonSemester").value,"chapters",$("lessonChapter").value,"lessons",id));await loadLessons();await dashboardStats()}catch(e){alert(e.message)}}
+function boot(){
+  const btn=$("loginBtn");
+  const email=$("email");
+  const password=$("password");
 
-$("video").oninput=$("pdf").oninput=()=>{$("resourcePreview").textContent=[$("video").value?"🎥 Video ready":"", $("pdf").value?"📄 PDF ready":""].filter(Boolean).join("  •  ")||"No resource added yet."};
-$("clear").onclick=()=>{["lessonName","description","video","pdf"].forEach(id=>$(id).value="");$("resourcePreview").textContent="No resource added yet.";msg("saveMsg","")};
-$("publish").onclick=async()=>{
- const c=$("course").value,s=$("semester").value,ch=$("chapter").value,name=$("lessonName").value.trim();
- if(!c||!s||!ch)return msg("saveMsg","Select course, semester and chapter.");
- if(!name)return msg("saveMsg","Enter a lesson name.");
- msg("saveMsg","Publishing...");
- try{const id="lesson-"+Date.now();await setDoc(doc(db,"courses",c,"semesters",s,"chapters",ch,"lessons",id),{name,type:$("type").value,description:$("description").value.trim(),videoUrl:$("video").value.trim(),pdfUrl:$("pdf").value.trim(),order:Date.now(),published:true,createdAt:new Date().toISOString()});
- msg("saveMsg","Published successfully ✓");$("clear").click();await loadLessons();await dashboardStats()}catch(e){msg("saveMsg",e.message)}};
+  if(!btn||!email||!password){
+    setMsg("Login page failed to load.");
+    return;
+  }
 
-async function dashboardStats(){
- let sem=0,less=0,res=0;
- try{for(const c of courses){const ss=await getDocs(collection(db,"courses",c[0],"semesters"));sem+=ss.size;for(const s of ss.docs){const cs=await getDocs(collection(db,"courses",c[0],"semesters",s.id,"chapters"));for(const ch of cs.docs){const ls=await getDocs(collection(db,"courses",c[0],"semesters",s.id,"chapters",ch.id,"lessons"));less+=ls.size;ls.forEach(d=>{const x=d.data();if(x.pdfUrl||x.videoUrl)res++})}}}$("dashSem").textContent=sem;$("dashLessons").textContent=less;$("dashResources").textContent=res}catch(e){$("dashSem").textContent=$("dashLessons").textContent="—";$("dashResources").textContent="—"}}
+  try{
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    const auth=firebase.auth();
+
+    auth.onAuthStateChanged(function(user){
+      if(user){
+        setMsg("Login successful. Loading Admin Studio…");
+        document.body.innerHTML += '<div id="adminLoaded" style="position:fixed;inset:0;background:#f4f6fa;z-index:99999;padding:40px;font:700 20px system-ui">Admin authentication is working ✓<br><small style="font-weight:500">Anonymous Firebase UID: '+user.uid+'</small></div>';
+      }
+    });
+
+    btn.addEventListener("click",async function(){
+      btn.disabled=true;
+      setMsg("Checking admin credentials…");
+
+      if(email.value.trim()!==ADMIN_EMAIL || password.value!==ADMIN_PASSWORD){
+        setMsg("Wrong admin ID or password.");
+        btn.disabled=false;
+        return;
+      }
+
+      try{
+        setMsg("Signing in to Firebase…");
+        await auth.signInAnonymously();
+        localStorage.setItem("learnWithMeAdmin","1");
+      }catch(e){
+        console.error(e);
+        if(e.code==="auth/operation-not-allowed"){
+          setMsg("Anonymous Authentication is OFF in Firebase.");
+        }else{
+          setMsg("Login failed: "+(e.message||e.code||"Unknown Firebase error"));
+        }
+      }finally{
+        btn.disabled=false;
+      }
+    });
+
+    password.addEventListener("keydown",e=>{
+      if(e.key==="Enter") btn.click();
+    });
+
+    setMsg("Ready. Tap Sign in.");
+  }catch(e){
+    console.error(e);
+    setMsg("Firebase setup error: "+(e.message||"Unknown error"));
+  }
+}
+
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
+else boot();
+})();

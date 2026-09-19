@@ -5,116 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
 <title>Learn with Me — Admin</title>
-<style>
-*{box-sizing:border-box}
-:root{--bg:#f4f6fa;--card:#fff;--ink:#101828;--muted:#667085;--line:#e4e7ec;--blue:#3155e7;--blue2:#5b6cff;--soft:#eef2ff;--green:#079455;--red:#b42318}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select,textarea{font:inherit}button{cursor:pointer}.app{min-height:100vh}.sidebar{position:fixed;left:0;top:0;bottom:0;width:245px;background:#0b1220;color:#fff;padding:22px 15px;display:flex;flex-direction:column}
-.brand{display:flex;align-items:center;gap:10px;padding:3px 7px 25px}.brand-logo,.login-logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#fff,#cbd5ff);color:#101828;display:grid;place-items:center;font-weight:950}.brand b{display:block;font-size:14px}.brand small{display:block;font-size:9px;letter-spacing:.14em;color:#98a2b3;margin-top:3px}
-nav{display:grid;gap:5px}.nav{border:0;background:transparent;color:#aeb7c7;text-align:left;padding:12px 13px;border-radius:12px;font-weight:750}.nav.active,.nav:hover{background:#182235;color:#fff}.nav span{margin-left:9px}
-.side-bottom{margin-top:auto}.admin-mini{font-size:10px;color:#98a2b3;letter-spacing:.14em;margin:0 13px 10px}.logout{width:100%;border:1px solid #293548;background:transparent;color:#d0d5dd;border-radius:11px;padding:10px;font-weight:800}
-.main{margin-left:245px;min-height:100vh;padding:34px 34px 55px}.mobile-head{display:none}.screen{display:none}.screen.active{display:block}.login{min-height:90vh;max-width:570px;margin:auto;text-align:center;padding-top:8vh}.login-logo{width:76px;height:76px;border-radius:24px;margin:auto;font-size:23px}.login h1{font-size:31px;margin:12px 0 4px}.login>p{color:var(--muted);margin-top:0}.msg{margin-top:10px;color:#b42318;font-size:12px;font-weight:700;min-height:18px}.login-card{margin-top:25px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;text-align:left;box-shadow:0 15px 40px #1018280b}
-.eyebrow{font-size:10px;letter-spacing:.16em;font-weight:900;color:#74809a}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:22px}.page-head h1{font-size:30px;margin:5px 0}.page-head p{margin:0;color:var(--muted);font-size:13px}.head-btn{min-width:145px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 10px 30px #10182808;margin-bottom:15px}.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:15px}.stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px}.stat span{font-size:9px;font-weight:900;color:#98a2b3;letter-spacing:.13em}.stat strong{display:block;font-size:27px;margin:5px 0 2px}.stat small{color:var(--muted);font-size:11px}.quick{display:flex;justify-content:space-between;align-items:center;gap:20px;background:linear-gradient(135deg,#eef2ff,#f8f7ff);border-color:#dfe4ff}.quick h2{margin:5px 0}.quick p{color:var(--muted);font-size:13px;max-width:570px}.section-head{margin-bottom:13px}.section-head h2{margin:0}.section-head p{color:var(--muted);font-size:12px;margin:4px 0}.course-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.course-tile{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:15px;background:#fff}.course-tile i{font-style:normal;width:36px;height:36px;border-radius:11px;background:var(--soft);color:var(--blue);display:grid;place-items:center;font-size:12px;font-weight:900}.course-tile b{font-size:13px}.course-tile small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
-label{display:block;font-size:11px;font-weight:850;margin:15px 0 6px}input,select,textarea{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);outline:none}textarea{resize:vertical}input:focus,select:focus,textarea:focus{border-color:#9aa8ff;box-shadow:0 0 0 3px #3155e712}.content-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.resources-card{grid-column:1/-1}.step{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:850;margin-bottom:4px}.step b{width:28px;height:28px;border-radius:9px;background:var(--soft);color:var(--blue);display:grid;place-items:center;font-size:10px}.upload-row{display:flex;align-items:center;gap:11px;padding:12px;background:#f8f9fc;border-radius:14px;margin:13px 0 8px}.upload-row small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.uicon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:11px;font-weight:900;background:#eef2ff;color:var(--blue)}.uicon.pdf{background:#fff0f0;color:#d92d20}.preview{margin-top:12px;padding:12px;border:1px dashed #d0d5dd;border-radius:12px;color:var(--muted);font-size:11px}.publish-bar{position:sticky;bottom:12px;display:flex;align-items:center;justify-content:flex-end;gap:9px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 30px #10182812}.publish-bar .msg{margin-right:auto}.primary{border:0;background:#101828;color:#fff;border-radius:12px;padding:12px 15px;font-weight:850}.primary span{float:right;margin-left:15px}.outline{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:11px 14px;font-weight:800}.msg{min-height:17px;color:var(--muted);font-size:11px}.filter-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.lesson-list{display:grid;gap:9px;margin-top:16px}.lesson-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:14px;padding:13px}.lesson-item b{font-size:13px}.lesson-item small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.danger{border:1px solid #f4c7c3;background:#fff;color:var(--red);border-radius:10px;padding:8px;font-size:10px;font-weight:850}.empty{text-align:center;color:var(--muted);padding:24px;font-size:12px}
-@media(max-width:850px){.sidebar{display:none}.main{margin:0;padding:18px 15px 35px}.mobile-head{display:flex;align-items:center;gap:10px;margin-bottom:22px}.mobile-head .brand-logo{width:38px;height:38px}.mobile-head button{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px}.stat-grid{grid-template-columns:1fr 1fr}.content-grid{grid-template-columns:1fr}.resources-card{grid-column:auto}}
-@media(max-width:560px){.page-head{display:block}.head-btn{margin-top:14px}.course-tiles{grid-template-columns:1fr}.quick{display:block}.quick .outline{width:100%}.filter-row{grid-template-columns:1fr}.publish-bar{flex-wrap:wrap}.publish-bar .msg{width:100%}}
-
-
-.login-logo-img{
-  width:118px!important;
-  height:118px!important;
-  object-fit:cover!important;
-  display:block!important;
-  margin:0 auto 18px!important;
-  border-radius:28px!important;
-  box-shadow:0 14px 35px rgba(16,24,40,.14)!important;
-}
-@media (max-width:700px){
-  .main{margin-left:0!important;padding:18px 14px 40px!important}
-  .sidebar{display:none!important}
-  .mobile-head{display:flex!important;align-items:center;justify-content:space-between;margin-bottom:18px}
-  .login{padding-top:4vh!important;max-width:520px!important}
-  .login-logo-img{width:105px!important;height:105px!important}
-  .login h1{font-size:29px!important}
-  .login-card{padding:20px!important}
-}
-
-.brand-logo-img{width:38px;height:38px;border-radius:12px;object-fit:cover;display:block}\n</style>
+<link rel="stylesheet" href="./admin.css?v=11">
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand"><div class="brand-logo">LM</div><div><b>Learn with Me</b><small>ADMIN STUDIO</small></div></div>
-    <nav>
-      <button class="nav active" data-page="dashboard">⌂ <span>Dashboard</span></button>
-      <button class="nav" data-page="content">▣ <span>Content Manager</span></button>
-      <button class="nav" data-page="lessons">▶ <span>Lessons</span></button>
-    </nav>
-    <div class="side-bottom"><div class="admin-mini">ADMIN</div><button id="logout" class="logout">Sign out</button></div>
-  </aside>
-
-  <main class="main">
-    <header class="mobile-head"><img class="brand-logo-img" src="learn-with-me-logo.png" alt="Learn with Me"><b>Admin Studio</b><button id="mobileLogout">↪</button></header>
-
-    <section id="login" class="login screen active">
-      <img class="login-logo-img" src="learn-with-me-logo.png" alt="Learn with Me logo">
-      <div class="eyebrow">LEARN WITH ME</div>
-      <h1>Admin Studio</h1>
-      <p>Manage your learning content from one place.</p>
-      <div class="login-card">
-        <label>Email</label><input id="email" type="email" value="admin@brainbyte.com" placeholder="Admin email">
-        <label>Password</label><input id="password" type="password" value="1122@3344" placeholder="Password">
-        <button id="loginBtn" class="primary">Sign in <span>→</span></button>
-        <div id="loginMsg" class="msg"></div>
-      </div>
-    </section>
-
-    <section id="dashboard" class="page screen">
-      <div class="page-head"><div><div class="eyebrow">OVERVIEW</div><h1>Dashboard</h1><p>Welcome to your content control center.</p></div><button class="primary head-btn" id="goContent">+ Add Lesson</button></div>
-      <div class="stat-grid">
-        <div class="stat"><span>COURSES</span><strong>14</strong><small>Active courses</small></div>
-        <div class="stat"><span>SEMESTERS</span><strong id="dashSem">—</strong><small>Available semesters</small></div>
-        <div class="stat"><span>LESSONS</span><strong id="dashLessons">—</strong><small>Published lessons</small></div>
-        <div class="stat"><span>RESOURCES</span><strong id="dashResources">—</strong><small>PDF + video links</small></div>
-      </div>
-      <div class="card quick"><div><div class="eyebrow">QUICK START</div><h2>Build your course library</h2><p>Select a course, semester and chapter, then publish lessons with video/PDF resources.</p></div><button class="outline" id="quickContent">Open Content Manager →</button></div>
-      <div class="card"><div class="section-head"><div><h2>Courses</h2><p>14 courses connected to your student website.</p></div></div><div id="courseTiles" class="course-tiles"></div></div>
-    </section>
-
-    <section id="content" class="page screen">
-      <div class="page-head"><div><div class="eyebrow">CONTENT MANAGER</div><h1>Publish a Lesson</h1><p>Choose where the lesson belongs.</p></div></div>
-      <div class="content-grid">
-        <div class="card">
-          <div class="step"><b>01</b><span>Location</span></div>
-          <label>Course</label><select id="course"></select>
-          <label>Semester</label><select id="semester"></select>
-          <label>Chapter</label><select id="chapter"></select>
-        </div>
-        <div class="card">
-          <div class="step"><b>02</b><span>Lesson details</span></div>
-          <label>Lesson name</label><input id="lessonName" placeholder="e.g. Introduction to HTML">
-          <label>Type</label><select id="type"><option>Video + PDF</option><option>Video</option><option>PDF / Notes</option><option>Practice</option><option>Lesson</option></select>
-          <label>Description</label><textarea id="description" rows="4" placeholder="Short description for students"></textarea>
-        </div>
-        <div class="card resources-card">
-          <div class="step"><b>03</b><span>Resources</span></div>
-          <div class="upload-row"><div class="uicon video">▶</div><div><b>Video</b><small>Use a hosted video URL now. Direct file upload can be connected to Firebase Storage later.</small></div></div>
-          <input id="video" placeholder="Video URL (YouTube / hosted video)">
-          <div class="upload-row"><div class="uicon pdf">PDF</div><div><b>PDF / Notes</b><small>Paste the public PDF URL.</small></div></div>
-          <input id="pdf" placeholder="PDF URL">
-          <div class="preview" id="resourcePreview">No resource added yet.</div>
-        </div>
-      </div>
-      <div class="publish-bar"><div id="saveMsg" class="msg"></div><button class="outline" id="clear">Clear</button><button class="primary" id="publish">Publish Lesson <span>→</span></button></div>
-    </section>
-
-    <section id="lessons" class="page screen">
-      <div class="page-head"><div><div class="eyebrow">LIBRARY</div><h1>Published Lessons</h1><p>View and remove lessons from the selected chapter.</p></div><button class="outline" id="refresh">Refresh</button></div>
-      <div class="card"><div class="filter-row"><select id="lessonCourse"></select><select id="lessonSemester"></select><select id="lessonChapter"></select></div><div id="lessonList" class="lesson-list"><div class="empty">Choose a course to begin.</div></div></div>
-    </section>
-  </main>
+<!-- Keep the existing admin UI; this file is intended to replace the current index.html only if needed. -->
+<div id="login" class="login screen active">
+  <img class="login-logo-img" src="learn-with-me-logo.png" alt="Learn with Me logo">
+  <div class="eyebrow">LEARN WITH ME</div>
+  <h1>Admin Studio</h1>
+  <p>Manage your learning content from one place.</p>
+  <div class="login-card">
+    <label>Email</label><input id="email" type="email" value="admin@brainbyte.com">
+    <label>Password</label><input id="password" type="password" value="1122@3344">
+    <button id="loginBtn" class="primary" type="button">Sign in <span>→</span></button>
+    <div id="loginMsg" class="msg"></div>
+  </div>
 </div>
-<script type="module" src="./admin.js?v=10"></script>
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-compat.js"></script>
+<script src="./admin.js?v=11"></script>
 </body>
 </html>
