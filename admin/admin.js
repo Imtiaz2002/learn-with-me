@@ -1,5 +1,5 @@
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import{getAuth,onAuthStateChanged,signInAnonymously,signOut}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 import{getFirestore,collection,getDocs,doc,setDoc,deleteDoc}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 import{FIREBASE_CONFIG}from"../frontend/firebase-config.js";
 
@@ -22,38 +22,37 @@ $("email").value=ADMIN_EMAIL;
 $("password").value=ADMIN_PASSWORD;
 
 $("loginBtn").onclick=async()=>{
-  const email=ADMIN_EMAIL;
-  const password=ADMIN_PASSWORD;
+  const email=$("email").value.trim();
+  const password=$("password").value;
   const btn=$("loginBtn");
   btn.disabled=true;
-  msg("loginMsg","Signing in...");
+  msg("loginMsg","Checking admin credentials...");
+  if(email!==ADMIN_EMAIL || password!==ADMIN_PASSWORD){
+    msg("loginMsg","Wrong admin ID or password.");
+    btn.disabled=false;
+    return;
+  }
   try{
-    await signInWithEmailAndPassword(auth,email,password);
+    msg("loginMsg","Signing in...");
+    await signInAnonymously(auth);
+    localStorage.setItem("learnWithMeAdmin","1");
     msg("loginMsg","Login successful.");
   }catch(e){
-    if(e.code==="auth/user-not-found" || e.code==="auth/invalid-credential"){
-      try{
-        msg("loginMsg","Creating admin account for first login...");
-        await createUserWithEmailAndPassword(auth,email,password);
-        msg("loginMsg","Admin account created. Login successful.");
-      }catch(createError){
-        if(createError.code==="auth/email-already-in-use"){
-          msg("loginMsg","Admin account already exists. Check Firebase Email/Password authentication and the password.");
-        }else if(createError.code==="auth/operation-not-allowed"){
-          msg("loginMsg","Firebase Email/Password sign-in is disabled. Enable Email/Password in Firebase Authentication.");
-        }else{
-          msg("loginMsg",createError.message);
-        }
-      }
-    }else if(e.code==="auth/operation-not-allowed"){
-      msg("loginMsg","Firebase Email/Password sign-in is disabled. Enable Email/Password in Firebase Authentication.");
+    console.error(e);
+    if(e.code==="auth/operation-not-allowed"){
+      msg("loginMsg","Anonymous Authentication is OFF. Firebase → Authentication → Sign-in method → Anonymous → Enable.");
     }else{
-      msg("loginMsg",e.message);
+      msg("loginMsg","Login failed: "+(e.message||e.code));
     }
   }finally{
     btn.disabled=false;
   }
 };
+
+
+$("logout").onclick=async()=>{try{await signOut(auth)}catch(e){console.error(e)}};
+$("mobileLogout").onclick=async()=>{try{await signOut(auth)}catch(e){console.error(e)}};
+$("refresh").onclick=()=>loadLessons();
 
 async function init(){renderCourses();$("course").innerHTML=courses.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("");$("lessonCourse").innerHTML=$("course").innerHTML;await loadSemesters("course","semester","chapter");await loadSemesters("lessonCourse","lessonSemester","lessonChapter");await dashboardStats();}
 function renderCourses(){$("courseTiles").innerHTML=courses.map(x=>`<div class="course-tile"><i>${esc(x[2])}</i><div><b>${esc(x[1])}</b><small>Connected course</small></div></div>`).join("")}
