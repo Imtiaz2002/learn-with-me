@@ -24,22 +24,36 @@ $("password").value=ADMIN_PASSWORD;
 $("loginBtn").onclick=async()=>{
   const email=ADMIN_EMAIL;
   const password=ADMIN_PASSWORD;
+  const btn=$("loginBtn");
+  btn.disabled=true;
   msg("loginMsg","Signing in...");
   try{
     await signInWithEmailAndPassword(auth,email,password);
+    msg("loginMsg","Login successful.");
   }catch(e){
-    if(e.code==="auth/user-not-found"){
+    if(e.code==="auth/user-not-found" || e.code==="auth/invalid-credential"){
       try{
+        msg("loginMsg","Creating admin account for first login...");
         await createUserWithEmailAndPassword(auth,email,password);
+        msg("loginMsg","Admin account created. Login successful.");
       }catch(createError){
-        msg("loginMsg",createError.message);
+        if(createError.code==="auth/email-already-in-use"){
+          msg("loginMsg","Admin account already exists. Check Firebase Email/Password authentication and the password.");
+        }else if(createError.code==="auth/operation-not-allowed"){
+          msg("loginMsg","Firebase Email/Password sign-in is disabled. Enable Email/Password in Firebase Authentication.");
+        }else{
+          msg("loginMsg",createError.message);
+        }
       }
+    }else if(e.code==="auth/operation-not-allowed"){
+      msg("loginMsg","Firebase Email/Password sign-in is disabled. Enable Email/Password in Firebase Authentication.");
     }else{
-      msg("loginMsg",e.code==="auth/invalid-credential" ? "Admin account exists but the password does not match." : e.message);
+      msg("loginMsg",e.message);
     }
+  }finally{
+    btn.disabled=false;
   }
 };
-$("logout").onclick=$("mobileLogout").onclick=()=>signOut(auth);
 
 async function init(){renderCourses();$("course").innerHTML=courses.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("");$("lessonCourse").innerHTML=$("course").innerHTML;await loadSemesters("course","semester","chapter");await loadSemesters("lessonCourse","lessonSemester","lessonChapter");await dashboardStats();}
 function renderCourses(){$("courseTiles").innerHTML=courses.map(x=>`<div class="course-tile"><i>${esc(x[2])}</i><div><b>${esc(x[1])}</b><small>Connected course</small></div></div>`).join("")}
