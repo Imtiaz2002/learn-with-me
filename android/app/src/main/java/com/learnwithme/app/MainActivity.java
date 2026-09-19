@@ -1,1 +1,41 @@
-package com.learnwithme.app;import android.app.Activity;import android.os.Bundle;import android.webkit.*;public class MainActivity extends Activity{WebView w;public void onCreate(Bundle b){super.onCreate(b);w=new WebView(this);setContentView(w);w.getSettings().setJavaScriptEnabled(true);w.getSettings().setDomStorageEnabled(true);w.setWebViewClient(new WebViewClient());w.loadUrl("https://imtiaz2002.github.io/learn-with-me/");}public void onBackPressed(){if(w.canGoBack())w.goBack();else super.onBackPressed();}}
+package com.learnwithme.app;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+public class MainActivity extends Activity {
+
+    private WebView webView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        webView = new WebView(this);
+        setContentView(webView);
+
+        WebSettings settings = webView.getSettings();
+
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setDatabaseEnabled(true);
+
+        webView.setWebViewClient(new WebViewClient());
+
+        webView.loadUrl(
+            "https://imtiaz2002.github.io/learn-with-me/"
+        );
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+}
