@@ -1,5 +1,16 @@
-plugins{id 'com.android.application'}
+plugins {
+    id 'com.android.application'
+}
 
-android{namespace 'com.learnwithme.app';compileSdk 35
-defaultConfig{applicationId 'com.learnwithme.app';minSdk 24;targetSdk 35;versionCode 1;versionName '1.0'}}
-dependencies{implementation 'androidx.appcompat:appcompat:1.7.0'}
+android {
+    namespace 'com.learnwithme.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.learnwithme.app'
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName '1.0'
+    }
+}
