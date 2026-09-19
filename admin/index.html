@@ -1,135 +1,85 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#101828">
-  <title>Learn with Me — Admin Panel</title>
-  <link rel="stylesheet" href="admin.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>Learn with Me — Admin</title>
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
-<div class="shell">
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-logo">LM</div><div><b>Learn with Me</b><small>ADMIN STUDIO</small></div></div>
+    <nav>
+      <button class="nav active" data-page="dashboard">⌂ <span>Dashboard</span></button>
+      <button class="nav" data-page="content">▣ <span>Content Manager</span></button>
+      <button class="nav" data-page="lessons">▶ <span>Lessons</span></button>
+    </nav>
+    <div class="side-bottom"><div class="admin-mini">ADMIN</div><button id="logout" class="logout">Sign out</button></div>
+  </aside>
 
-  <section id="loginScreen" class="screen active">
-    <div class="brand">
-      <div class="logo">LM</div>
-      <div>
-        <b>Learn with Me</b>
-        <span>Admin Panel</span>
+  <main class="main">
+    <header class="mobile-head"><div class="brand-logo">LM</div><b>Admin Studio</b><button id="mobileLogout">↪</button></header>
+
+    <section id="login" class="login screen active">
+      <div class="login-logo">LM</div>
+      <div class="eyebrow">LEARN WITH ME</div>
+      <h1>Admin Studio</h1>
+      <p>Manage your learning content from one place.</p>
+      <div class="login-card">
+        <label>Email</label><input id="email" type="email" placeholder="Admin email">
+        <label>Password</label><input id="password" type="password" placeholder="Password">
+        <button id="loginBtn" class="primary">Sign in <span>→</span></button>
+        <div id="loginMsg" class="msg"></div>
       </div>
-    </div>
+    </section>
 
-    <div class="card login-card">
-      <div class="kicker">ADMIN ACCESS</div>
-      <h1>Content Manager</h1>
-      <p class="muted">Sign in to manage courses, chapters, lessons and resources.</p>
-
-      <label>Email</label>
-      <input id="email" type="email" autocomplete="username" placeholder="admin@example.com">
-
-      <label>Password</label>
-      <input id="password" type="password" autocomplete="current-password" placeholder="Password">
-
-      <button id="loginBtn" class="primary">Sign in <span>→</span></button>
-      <p id="loginStatus" class="status"></p>
-    </div>
-  </section>
-
-  <section id="appScreen" class="screen">
-    <header class="topbar">
-      <div>
-        <div class="kicker">LEARN WITH ME</div>
-        <h1>Admin Dashboard</h1>
-        <p id="adminEmail" class="muted"></p>
+    <section id="dashboard" class="page screen">
+      <div class="page-head"><div><div class="eyebrow">OVERVIEW</div><h1>Dashboard</h1><p>Welcome to your content control center.</p></div><button class="primary head-btn" id="goContent">+ Add Lesson</button></div>
+      <div class="stat-grid">
+        <div class="stat"><span>COURSES</span><strong>14</strong><small>Active courses</small></div>
+        <div class="stat"><span>SEMESTERS</span><strong id="dashSem">—</strong><small>Available semesters</small></div>
+        <div class="stat"><span>LESSONS</span><strong id="dashLessons">—</strong><small>Published lessons</small></div>
+        <div class="stat"><span>RESOURCES</span><strong id="dashResources">—</strong><small>PDF + video links</small></div>
       </div>
-      <button id="logoutBtn" class="ghost">Logout</button>
-    </header>
+      <div class="card quick"><div><div class="eyebrow">QUICK START</div><h2>Build your course library</h2><p>Select a course, semester and chapter, then publish lessons with video/PDF resources.</p></div><button class="outline" id="quickContent">Open Content Manager →</button></div>
+      <div class="card"><div class="section-head"><div><h2>Courses</h2><p>14 courses connected to your student website.</p></div></div><div id="courseTiles" class="course-tiles"></div></div>
+    </section>
 
-    <div class="stats">
-      <div class="stat"><strong id="courseCount">14</strong><span>Courses</span></div>
-      <div class="stat"><strong id="lessonCount">—</strong><span>Selected lessons</span></div>
-      <div class="stat"><strong id="resourceCount">—</strong><span>Resources</span></div>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <div>
-          <div class="kicker">CONTENT</div>
-          <h2>Add / Manage Lesson</h2>
+    <section id="content" class="page screen">
+      <div class="page-head"><div><div class="eyebrow">CONTENT MANAGER</div><h1>Publish a Lesson</h1><p>Choose where the lesson belongs.</p></div></div>
+      <div class="content-grid">
+        <div class="card">
+          <div class="step"><b>01</b><span>Location</span></div>
+          <label>Course</label><select id="course"></select>
+          <label>Semester</label><select id="semester"></select>
+          <label>Chapter</label><select id="chapter"></select>
         </div>
-        <button id="refreshBtn" class="ghost small">Refresh</button>
-      </div>
-
-      <label>Course</label>
-      <select id="courseSelect"></select>
-
-      <label>Semester</label>
-      <select id="semesterSelect"></select>
-
-      <label>Chapter</label>
-      <select id="chapterSelect"></select>
-
-      <div class="form-grid">
-        <div>
-          <label>Lesson name</label>
-          <input id="lessonName" placeholder="Example: Introduction to MS Word">
+        <div class="card">
+          <div class="step"><b>02</b><span>Lesson details</span></div>
+          <label>Lesson name</label><input id="lessonName" placeholder="e.g. Introduction to HTML">
+          <label>Type</label><select id="type"><option>Video + PDF</option><option>Video</option><option>PDF / Notes</option><option>Practice</option><option>Lesson</option></select>
+          <label>Description</label><textarea id="description" rows="4" placeholder="Short description for students"></textarea>
         </div>
-        <div>
-          <label>Lesson type</label>
-          <select id="lessonType">
-            <option value="Video">Video</option>
-            <option value="PDF">PDF / Notes</option>
-            <option value="Video + PDF">Video + PDF</option>
-            <option value="Practice">Practice</option>
-            <option value="Lesson">Lesson</option>
-          </select>
+        <div class="card resources-card">
+          <div class="step"><b>03</b><span>Resources</span></div>
+          <div class="upload-row"><div class="uicon video">▶</div><div><b>Video</b><small>Use a hosted video URL now. Direct file upload can be connected to Firebase Storage later.</small></div></div>
+          <input id="video" placeholder="Video URL (YouTube / hosted video)">
+          <div class="upload-row"><div class="uicon pdf">PDF</div><div><b>PDF / Notes</b><small>Paste the public PDF URL.</small></div></div>
+          <input id="pdf" placeholder="PDF URL">
+          <div class="preview" id="resourcePreview">No resource added yet.</div>
         </div>
       </div>
+      <div class="publish-bar"><div id="saveMsg" class="msg"></div><button class="outline" id="clear">Clear</button><button class="primary" id="publish">Publish Lesson <span>→</span></button></div>
+    </section>
 
-      <label>Description</label>
-      <textarea id="description" rows="3" placeholder="Short lesson description"></textarea>
-
-      <div class="resource-grid">
-        <div class="resource-box">
-          <div class="resource-icon">🎥</div>
-          <div>
-            <b>Video</b>
-            <span>Paste a hosted video URL for now.</span>
-          </div>
-        </div>
-        <input id="videoUrl" placeholder="https://... video URL">
-      </div>
-
-      <div class="resource-grid">
-        <div class="resource-box">
-          <div class="resource-icon">📄</div>
-          <div>
-            <b>PDF / Notes</b>
-            <span>Paste a hosted PDF URL for now.</span>
-          </div>
-        </div>
-        <input id="pdfUrl" placeholder="https://... PDF URL">
-      </div>
-
-      <div class="actions">
-        <button id="saveBtn" class="primary">Publish Lesson</button>
-        <button id="clearBtn" class="ghost">Clear</button>
-      </div>
-      <p id="saveStatus" class="status"></p>
-    </div>
-
-    <div class="card">
-      <div class="card-head">
-        <div>
-          <div class="kicker">LESSONS</div>
-          <h2>Published Lessons</h2>
-        </div>
-      </div>
-      <div id="lessons" class="lesson-list"><div class="empty">Select a course, semester and chapter.</div></div>
-    </div>
-  </section>
+    <section id="lessons" class="page screen">
+      <div class="page-head"><div><div class="eyebrow">LIBRARY</div><h1>Published Lessons</h1><p>View and remove lessons from the selected chapter.</p></div><button class="outline" id="refresh">Refresh</button></div>
+      <div class="card"><div class="filter-row"><select id="lessonCourse"></select><select id="lessonSemester"></select><select id="lessonChapter"></select></div><div id="lessonList" class="lesson-list"><div class="empty">Choose a course to begin.</div></div></div>
+    </section>
+  </main>
 </div>
-
 <script type="module" src="admin.js"></script>
 </body>
 </html>
