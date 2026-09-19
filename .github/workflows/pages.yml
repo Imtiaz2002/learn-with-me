@@ -22,13 +22,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare website
+        run: |
+          rm -rf _site
+          mkdir -p _site/admin
+          cp -R frontend/. _site/
+          cp -R admin/. _site/admin/
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './frontend'
+          path: './_site'
 
       - name: Deploy to GitHub Pages
         id: deployment
