@@ -1,5 +1,5 @@
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 import{getFirestore,collection,getDocs,doc,setDoc,deleteDoc}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 import{FIREBASE_CONFIG}from"../frontend/firebase-config.js";
 
@@ -15,7 +15,33 @@ onAuthStateChanged(auth,u=>{
  if(u){$("login").classList.remove("active");$("dashboard").classList.add("active");document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$("dashboard").classList.add("active");init();}
  else{document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$("login").classList.add("active")}
 });
-$("loginBtn").onclick=async()=>{msg("loginMsg","Signing in...");try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value)}catch(e){msg("loginMsg",e.message)}};
+const ADMIN_EMAIL="admin@brainbyte.com";
+const ADMIN_PASSWORD="1122@3344";
+
+$("email").value=ADMIN_EMAIL;
+
+$("loginBtn").onclick=async()=>{
+  const email=$("email").value.trim();
+  const password=$("password").value;
+  if(email!==ADMIN_EMAIL||password!==ADMIN_PASSWORD){
+    msg("loginMsg","Invalid admin ID or password.");
+    return;
+  }
+  msg("loginMsg","Signing in...");
+  try{
+    await signInWithEmailAndPassword(auth,ADMIN_EMAIL,ADMIN_PASSWORD);
+  }catch(e){
+    if(e.code==="auth/user-not-found"||e.code==="auth/invalid-credential"){
+      try{
+        await createUserWithEmailAndPassword(auth,ADMIN_EMAIL,ADMIN_PASSWORD);
+      }catch(createError){
+        msg("loginMsg",createError.message);
+      }
+    }else{
+      msg("loginMsg",e.message);
+    }
+  }
+};
 $("logout").onclick=$("mobileLogout").onclick=()=>signOut(auth);
 
 async function init(){renderCourses();$("course").innerHTML=courses.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("");$("lessonCourse").innerHTML=$("course").innerHTML;await loadSemesters("course","semester","chapter");await loadSemesters("lessonCourse","lessonSemester","lessonChapter");await dashboardStats();}
