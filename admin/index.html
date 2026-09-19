@@ -5,25 +5,106 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
 <title>Learn with Me — Admin</title>
-<link rel="stylesheet" href="./admin.css?v=11">
+<link rel="stylesheet" href="./admin.css?v=12">
 </head>
 <body>
-<!-- Keep the existing admin UI; this file is intended to replace the current index.html only if needed. -->
-<div id="login" class="login screen active">
-  <img class="login-logo-img" src="learn-with-me-logo.png" alt="Learn with Me logo">
-  <div class="eyebrow">LEARN WITH ME</div>
-  <h1>Admin Studio</h1>
-  <p>Manage your learning content from one place.</p>
-  <div class="login-card">
-    <label>Email</label><input id="email" type="email" value="admin@brainbyte.com">
-    <label>Password</label><input id="password" type="password" value="1122@3344">
-    <button id="loginBtn" class="primary" type="button">Sign in <span>→</span></button>
-    <div id="loginMsg" class="msg"></div>
+<div id="login" class="screen login-screen">
+  <div class="login-wrap">
+    <img class="login-logo" src="learn-with-me-logo.png" alt="Learn with Me">
+    <div class="eyebrow">LEARN WITH ME</div>
+    <h1>Admin Studio</h1>
+    <p>Manage your learning content from one place.</p>
+    <div class="login-card">
+      <label for="email">Email</label>
+      <input id="email" type="email" value="admin@brainbyte.com" autocomplete="username">
+      <label for="password">Password</label>
+      <input id="password" type="password" value="1122@3344" autocomplete="current-password">
+      <button id="loginBtn" class="primary full" type="button">Sign in <span>→</span></button>
+      <div id="loginMsg" class="msg"></div>
+    </div>
   </div>
 </div>
+
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="learn-with-me-logo.png" alt="">
+      <div><b>Learn with Me</b><small>ADMIN STUDIO</small></div>
+    </div>
+    <nav>
+      <button class="nav active" data-page="dashboard">⌂ <span>Dashboard</span></button>
+      <button class="nav" data-page="content">▣ <span>Content Manager</span></button>
+      <button class="nav" data-page="lessons">▶ <span>Lessons</span></button>
+    </nav>
+    <div class="side-bottom">
+      <small>ADMIN</small>
+      <button id="logout" class="logout">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="mobile-head">
+      <img src="learn-with-me-logo.png" alt="">
+      <b>Admin Studio</b>
+      <button id="mobileLogout" class="icon-btn">↪</button>
+    </header>
+
+    <section id="dashboard" class="page active">
+      <div class="page-head">
+        <div><div class="eyebrow">OVERVIEW</div><h1>Dashboard</h1><p>Your learning content control center.</p></div>
+        <button class="primary" id="goContent">+ Add Lesson</button>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><span>COURSES</span><strong>14</strong><small>Active courses</small></div>
+        <div class="stat"><span>SEMESTERS</span><strong id="dashSem">—</strong><small>Available semesters</small></div>
+        <div class="stat"><span>LESSONS</span><strong id="dashLessons">—</strong><small>Published lessons</small></div>
+        <div class="stat"><span>RESOURCES</span><strong id="dashResources">—</strong><small>PDF + video links</small></div>
+      </div>
+      <div class="card quick"><div><div class="eyebrow">QUICK START</div><h2>Build your course library</h2><p>Select a course, semester and chapter, then publish a lesson with a video and/or PDF URL.</p></div><button class="outline" id="quickContent">Open Content Manager →</button></div>
+      <div class="card"><div class="section-head"><h2>Courses</h2><p>These courses are connected to the student website.</p></div><div id="courseTiles" class="course-tiles"></div></div>
+    </section>
+
+    <section id="content" class="page">
+      <div class="page-head"><div><div class="eyebrow">CONTENT MANAGER</div><h1>Publish a Lesson</h1><p>Choose where the lesson belongs.</p></div></div>
+      <div class="content-grid">
+        <div class="card">
+          <div class="step"><b>01</b><span>Location</span></div>
+          <label>Course</label><select id="course"></select>
+          <label>Semester</label><select id="semester"></select>
+          <label>Chapter</label><select id="chapter"></select>
+        </div>
+        <div class="card">
+          <div class="step"><b>02</b><span>Lesson details</span></div>
+          <label>Lesson name</label><input id="lessonName" placeholder="e.g. Introduction to HTML">
+          <label>Type</label>
+          <select id="type"><option>Video + PDF</option><option>Video</option><option>PDF / Notes</option><option>Practice</option><option>Lesson</option></select>
+          <label>Description</label><textarea id="description" rows="4" placeholder="Short description for students"></textarea>
+        </div>
+        <div class="card resources-card">
+          <div class="step"><b>03</b><span>Resources</span></div>
+          <div class="resource-row"><div class="uicon">▶</div><div><b>Video</b><small>Paste a public YouTube or hosted video URL.</small></div></div>
+          <input id="video" placeholder="https://...">
+          <div class="resource-row"><div class="uicon pdf">PDF</div><div><b>PDF / Notes</b><small>Paste a public PDF URL.</small></div></div>
+          <input id="pdf" placeholder="https://...">
+          <div class="preview" id="resourcePreview">No resource added yet.</div>
+        </div>
+      </div>
+      <div class="publish-bar"><div id="saveMsg" class="msg"></div><button class="outline" id="clear">Clear</button><button class="primary" id="publish">Publish Lesson <span>→</span></button></div>
+    </section>
+
+    <section id="lessons" class="page">
+      <div class="page-head"><div><div class="eyebrow">LIBRARY</div><h1>Published Lessons</h1><p>View and remove lessons from a selected chapter.</p></div><button class="outline" id="refresh">Refresh</button></div>
+      <div class="card">
+        <div class="filter-row"><select id="lessonCourse"></select><select id="lessonSemester"></select><select id="lessonChapter"></select></div>
+        <div id="lessonList" class="lesson-list"><div class="empty">Choose a course to begin.</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-compat.js"></script>
-<script src="./admin.js?v=11"></script>
+<script src="./admin.js?v=12"></script>
 </body>
 </html>
