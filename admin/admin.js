@@ -19,26 +19,23 @@ const ADMIN_EMAIL="admin@brainbyte.com";
 const ADMIN_PASSWORD="1122@3344";
 
 $("email").value=ADMIN_EMAIL;
+$("password").value=ADMIN_PASSWORD;
 
 $("loginBtn").onclick=async()=>{
-  const email=$("email").value.trim();
-  const password=$("password").value;
-  if(email!==ADMIN_EMAIL||password!==ADMIN_PASSWORD){
-    msg("loginMsg","Invalid admin ID or password.");
-    return;
-  }
+  const email=ADMIN_EMAIL;
+  const password=ADMIN_PASSWORD;
   msg("loginMsg","Signing in...");
   try{
-    await signInWithEmailAndPassword(auth,ADMIN_EMAIL,ADMIN_PASSWORD);
+    await signInWithEmailAndPassword(auth,email,password);
   }catch(e){
-    if(e.code==="auth/user-not-found"||e.code==="auth/invalid-credential"){
+    if(e.code==="auth/user-not-found"){
       try{
-        await createUserWithEmailAndPassword(auth,ADMIN_EMAIL,ADMIN_PASSWORD);
+        await createUserWithEmailAndPassword(auth,email,password);
       }catch(createError){
         msg("loginMsg",createError.message);
       }
     }else{
-      msg("loginMsg",e.message);
+      msg("loginMsg",e.code==="auth/invalid-credential" ? "Admin account exists but the password does not match." : e.message);
     }
   }
 };
